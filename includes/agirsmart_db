@@ -1,0 +1,269 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Feb 24, 2025 at 08:06 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `agrismart_db`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `disputes`
+--
+
+CREATE TABLE `disputes` (
+  `id` int(11) NOT NULL,
+  `farmer_id` int(11) NOT NULL,
+  `issue` text NOT NULL,
+  `status` enum('Open','Resolved') DEFAULT 'Open',
+  `resolution` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `farm_inputs`
+--
+
+CREATE TABLE `farm_inputs` (
+  `id` int(11) NOT NULL,
+  `supplier_id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `category` enum('Fertilizer','Seed','Pesticide') NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `stock` int(11) NOT NULL,
+  `stock_quantity` int(11) NOT NULL DEFAULT 0,
+  `description` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `farm_inputs`
+--
+
+INSERT INTO `farm_inputs` (`id`, `supplier_id`, `name`, `category`, `price`, `stock`, `stock_quantity`, `description`) VALUES
+(1, 0, 'Fertilizer', 'Fertilizer', 1500.00, 0, 0, NULL),
+(2, 0, 'Pesticide', 'Fertilizer', 800.00, 15, 0, NULL),
+(3, 0, 'Seeds', 'Fertilizer', 500.00, 28, 0, NULL),
+(4, 2, 'maize', 'Fertilizer', 34100.00, 0, 3, 'stock'),
+(5, 2, 'Beans', 'Fertilizer', 34566.00, 0, 11, 'gfd'),
+(6, 2, 'Beans', 'Fertilizer', 34566.00, 0, 34, 'stock'),
+(7, 2, 'maize', 'Fertilizer', 34100.00, 0, 20, 'stock'),
+(8, 2, 'Pesticides', 'Fertilizer', 40000.00, 0, 240, 'for sale');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `orders`
+--
+
+CREATE TABLE `orders` (
+  `id` int(11) NOT NULL,
+  `farmer_id` int(11) NOT NULL,
+  `supplier_id` int(11) NOT NULL,
+  `input_id` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `total_price` decimal(10,2) NOT NULL,
+  `status` enum('Pending','Processed','Delivered') DEFAULT 'Pending',
+  `order_date` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`id`, `farmer_id`, `supplier_id`, `input_id`, `quantity`, `total_price`, `status`, `order_date`) VALUES
+(1, 1, 0, 3, 2, 1000.00, 'Pending', '2025-02-21 19:59:55'),
+(2, 1, 0, 1, 8, 12000.00, 'Delivered', '2025-02-21 20:00:21'),
+(3, 1, 0, 1, 12, 18000.00, 'Processed', '2025-02-21 20:00:29'),
+(4, 1, 0, 4, 13, 443300.00, 'Pending', '2025-02-21 20:28:55'),
+(5, 1, 0, 5, 23, 795018.00, 'Pending', '2025-02-21 20:38:56'),
+(6, 3, 0, 4, 4, 136400.00, 'Pending', '2025-02-24 06:37:48');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_tracking`
+--
+
+CREATE TABLE `order_tracking` (
+  `id` int(11) NOT NULL,
+  `farmer_id` int(11) NOT NULL,
+  `tracking_id` varchar(50) NOT NULL,
+  `status` enum('In Transit','Delivered','Delayed') DEFAULT 'In Transit',
+  `expected_delivery` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `price_updates`
+--
+
+CREATE TABLE `price_updates` (
+  `id` int(11) NOT NULL,
+  `input_id` int(11) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `full_name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `role` enum('farmer','supplier') NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` enum('pending','approved') NOT NULL DEFAULT 'pending'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `full_name`, `email`, `phone`, `role`, `password`, `created_at`, `status`) VALUES
+(1, 'Onduso Bonface', 'ondusobonface9@gmail.com', 'Bonface2', 'farmer', '$2y$10$LS8.aJUinHwmgrZhNB80z.aMOUneq24L9RBomnha992h3Dpy.Rl6a', '2025-02-21 19:47:05', 'pending'),
+(2, 'John', 'john@gmail.com', '0729820899', 'supplier', '$2y$10$o5bBx36yZrarEM28d6Rz5e/45I2tbgk0pHdQJNl3EjedamQBXwlYS', '2025-02-21 20:02:48', 'pending'),
+(3, 'James Maina', 'james@gmail.com', '0729820689', 'farmer', '$2y$10$iSrNNaVCzzhT408.HCs6eOaAz9nBXfiY.QN10HS5I3AIe8.Y.9tXG', '2025-02-24 06:36:22', 'pending');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `disputes`
+--
+ALTER TABLE `disputes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `farmer_id` (`farmer_id`);
+
+--
+-- Indexes for table `farm_inputs`
+--
+ALTER TABLE `farm_inputs`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `orders`
+--
+ALTER TABLE `orders`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `farmer_id` (`farmer_id`),
+  ADD KEY `input_id` (`input_id`);
+
+--
+-- Indexes for table `order_tracking`
+--
+ALTER TABLE `order_tracking`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `farmer_id` (`farmer_id`);
+
+--
+-- Indexes for table `price_updates`
+--
+ALTER TABLE `price_updates`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `input_id` (`input_id`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `disputes`
+--
+ALTER TABLE `disputes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `farm_inputs`
+--
+ALTER TABLE `farm_inputs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `orders`
+--
+ALTER TABLE `orders`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `order_tracking`
+--
+ALTER TABLE `order_tracking`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `price_updates`
+--
+ALTER TABLE `price_updates`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `disputes`
+--
+ALTER TABLE `disputes`
+  ADD CONSTRAINT `disputes_ibfk_1` FOREIGN KEY (`farmer_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `orders`
+--
+ALTER TABLE `orders`
+  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`farmer_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`input_id`) REFERENCES `farm_inputs` (`id`);
+
+--
+-- Constraints for table `order_tracking`
+--
+ALTER TABLE `order_tracking`
+  ADD CONSTRAINT `order_tracking_ibfk_1` FOREIGN KEY (`farmer_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `price_updates`
+--
+ALTER TABLE `price_updates`
+  ADD CONSTRAINT `price_updates_ibfk_1` FOREIGN KEY (`input_id`) REFERENCES `farm_inputs` (`id`) ON DELETE CASCADE;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
